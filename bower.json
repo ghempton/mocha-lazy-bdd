@@ -1,0 +1,27 @@
+{
+  "name": "mocha-lazy-bdd",
+  "version": "0.0.1",
+  "homepage": "https://github.com/ghempton/mocha-lazy-bdd",
+  "authors": [
+    "Gordon Hempton <ghempton@gmail.com>"
+  ],
+  "description": "Lazy bdd interface for mocha that provides RSpec-style let/subject macros for ES5+ projects.",
+  "main": "dist/mocha-lazy-bdd.js",
+  "keywords": [
+    "mocha",
+    "rspec",
+    "lazy",
+    "bdd",
+    "let",
+    "subject"
+  ],
+  "license": "ISC",
+  "ignore": [
+    "node_modules",
+    "index.js",
+    "run-tests.js",
+    "spec.js",
+    "package.json",
+    "webpack.config.js"
+  ]
+}
