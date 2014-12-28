@@ -89,14 +89,18 @@ var MochaLazyBdd =
 	    
 	    context.lazy = function(name, fn) {
 	      suites[0].beforeAll(function() {
+	        var key = this.test.fullTitle() + '$' + name;
 	        Object.defineProperty(this, name, {
 	          configurable: true,
 	          enumerable: false,
 	          get: function() {
-	            if(name in cache) {
-	              return cache[name];
+	            if(key in cache) {
+	              return cache[key];
 	            }
-	            return cache[name] = fn.apply(this);
+	            this._super = Object.getPrototypeOf(this);
+	            var res = fn.apply(this);
+	            delete this._super;
+	            return cache[key] = res;
 	          }
 	        });
 	      });

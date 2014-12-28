@@ -1,6 +1,6 @@
 {
   "name": "mocha-lazy-bdd",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "homepage": "https://github.com/ghempton/mocha-lazy-bdd",
   "authors": [
     "Gordon Hempton <ghempton@gmail.com>"

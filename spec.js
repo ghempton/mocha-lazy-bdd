@@ -4,13 +4,13 @@ describe('mocha-lazy-bdd', function() {
   
   describe('lazy', function() {
     
-    lazyHit = false;
+    var hitCount;
     beforeEach(function() {
-      lazyHit = false;
+      hitCount = 0;
     });
     
     lazy('value', function() {
-      lazyHit = true;
+      hitCount++;
       return 'i am lazy';
     });
     
@@ -23,9 +23,15 @@ describe('mocha-lazy-bdd', function() {
     });
     
     it('evaluates lazily', function() {
-      expect(lazyHit).to.be.false;
+      expect(hitCount).to.eq(0);
       this.value;
-      expect(lazyHit).to.be.true;
+      expect(hitCount).to.eq(1);
+    });
+    
+    it('caches the result', function() {
+      expect(this.value).to.eq('i am lazy');
+      expect(this.value).to.eq('i am lazy');
+      expect(hitCount).to.eq(1);
     });
     
     it('can depend on other lazy values', function() {
@@ -44,6 +50,21 @@ describe('mocha-lazy-bdd', function() {
       
       it('can depend on other overridden lazy values', function() {
         expect(this.anotherValue).to.eq('lazier(er)');
+      });
+      
+      it('can access parent value using Object.getPrototypeOf', function() {
+        expect(this.value).to.eq('lazier');
+        expect(Object.getPrototypeOf(this).value).to.eq('i am lazy');
+      });
+      
+      context('another nested suite', function() {
+        lazy('value', function() {
+          return this._super.value + '++';
+        });
+        
+        it('can access parent value using _super', function() {
+          expect(this.value).to.eq('lazier++');
+        });
       });
       
     });
