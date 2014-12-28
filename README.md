@@ -1,6 +1,6 @@
 # Mocha Lazy BDD
 
-This module provides a Lazy BDD interface to mocha. The interfaces is indentical to the standard `bdd` interface, but also provides additional `lazy`/`subject` macros:
+This module provides a Lazy BDD interface to mocha. The interfaces is identical to the standard `bdd` interface, but also provides additional RSpec-style `lazy`/`subject` macros.
 
 ## Example Spec
 
