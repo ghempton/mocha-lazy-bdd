@@ -38,7 +38,17 @@ describe('mocha-lazy-bdd', function() {
       expect(this.anotherValue).to.eq('i am lazy(er)');
     });
     
-    context('inside a nested suite', function() {
+    context('inside a nested context', function() {
+      
+      it('evaluates lazily', function() {
+        expect(hitCount).to.eq(0);
+        this.value;
+        expect(hitCount).to.eq(1);
+      });
+      
+    });
+    
+    context('inside a nested context with an overridden value', function() {
       
       lazy('value', function() {
         return 'lazier';
@@ -52,12 +62,7 @@ describe('mocha-lazy-bdd', function() {
         expect(this.anotherValue).to.eq('lazier(er)');
       });
       
-      it('can access parent value using Object.getPrototypeOf', function() {
-        expect(this.value).to.eq('lazier');
-        expect(Object.getPrototypeOf(this).value).to.eq('i am lazy');
-      });
-      
-      context('another nested suite', function() {
+      context('another nested context', function() {
         lazy('value', function() {
           return this._super.value + '++';
         });
@@ -87,6 +92,66 @@ describe('mocha-lazy-bdd', function() {
     
     it('can be named', function() {
       expect(this.namedSubject).to.eq('haz name');
+    });
+    
+  });
+  
+  describe('beforeEach', function() {
+    
+    lazy('value', function() {
+      return 'override me';
+    });
+    
+    beforeEach(function() {
+      this.eagerValue = this.value;
+    });
+    
+    it('has access to lazy values', function() {
+      expect(this.eagerValue).to.eq('override me');
+    });
+    
+    context('inside a nested context', function() {
+      
+      it('has access to lazy values', function() {
+        expect(this.eagerValue).to.eq('override me');
+      });
+      
+    });
+    
+    context('inside a nested context with an overridden value', function() {
+      
+      lazy('value', function() {
+        return 'couch potato';
+      });
+      
+      it('has access to the overriden value', function() {
+        expect(this.eagerValue).to.eq('couch potato');
+      });
+      
+    });
+    
+    context('inside a nested context with an overridden value accessing _super', function() {
+      
+      lazy('value', function() {
+        return this._super.value + ' couch potato';
+      });
+      
+      it('has access to the override value', function() {
+        expect(this.eagerValue).to.eq('override me couch potato');
+      });
+      
+      context('another level deep', function() {
+        
+        lazy('value', function() {
+          return 'deeply lazy';
+        });
+        
+        it('has access to the override value', function() {
+          expect(this.eagerValue).to.eq('deeply lazy');
+        });
+        
+      });
+      
     });
     
   });
