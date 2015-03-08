@@ -79,7 +79,7 @@ var MochaLazyBdd =
 
 	  suite.on('pre-require', function(context, file, mocha){
 
-	    // clear lazy cache
+	    // clear lazy cache 
 	    suite.beforeEach(function() {
 	      cache = {};
 	      insideTest = false;
@@ -90,28 +90,27 @@ var MochaLazyBdd =
 	     */
 	    
 	    context.lazy = function(name, fn) {
-	      suites[0].beforeAll(function() {
-	        var key = name;
-	        Object.defineProperty(this, name, {
-	          configurable: true,
-	          enumerable: false,
-	          get: function() {
-	            // need to access the property in the context of the current test
-	            // inside of hooks in case the value was overridden
-	            if(!insideTest && this.currentTest && this.currentTest.ctx) {
-	              insideTest = true;
-	              return this.currentTest.ctx[name];
-	            }
-	            if(key in cache) {
-	              return cache[key];
-	            }
-	            this._super = Object.getPrototypeOf(this);
-	            var res = fn.apply(this);
-	            delete this._super;
-	            insideTest = false;
-	            return cache[key] = res;
+	      var key = name,
+	          prototype = suites[0].ctx;
+	      Object.defineProperty(prototype, name, {
+	        configurable: true,
+	        enumerable: false,
+	        get: function() {
+	          // need to access the property in the context of the current test
+	          // inside of hooks in case the value was overridden
+	          if(!insideTest && this.currentTest && this.currentTest.ctx) {
+	            insideTest = true;
+	            return this.currentTest.ctx[name];
 	          }
-	        });
+	          if(key in cache) {
+	            return cache[key];
+	          }
+	          this._super = Object.getPrototypeOf(prototype);
+	          var res = fn.apply(this);
+	          delete this._super;
+	          insideTest = false;
+	          return cache[key] = res;
+	        }
 	      });
 	    };
 	    
