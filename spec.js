@@ -70,6 +70,22 @@ describe('mocha-lazy-bdd', function() {
         it('can access parent value using _super', function() {
           expect(this.value).to.eq('lazier++');
         });
+        
+        context('yet another nested context', function() {
+          
+          it('can access parent value using _super', function() {
+            expect(this.value).to.eq('lazier++');
+          });
+          
+          context('and one more', function() {
+            
+            it('can access parent value using _super', function() {
+              expect(this.value).to.eq('lazier++');
+            });
+            
+          });
+          
+        });
       });
       
     });
