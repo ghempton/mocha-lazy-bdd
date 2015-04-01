@@ -30,7 +30,7 @@ See [this project's specs](https://github.com/ghempton/mocha-lazy-bdd/blob/maste
 
 ```
 npm install --save-dev mocha-lazy-bdd
-mocha -u lazy-bdd
+mocha -u mocha-lazy-bdd
 ```
 
 Or in a browser environment: install `mocha-lazy` via bower and then include the distribution before mocha has been setup.
