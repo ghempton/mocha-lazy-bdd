@@ -33,4 +33,4 @@ npm install --save-dev mocha-lazy-bdd
 mocha -u mocha-lazy-bdd
 ```
 
-Or in a browser environment: install `mocha-lazy` via bower and then include the distribution before mocha has been setup.
+Or in a browser environment: install `mocha-lazy-bdd` via bower and then include the distribution before mocha has been setup.
