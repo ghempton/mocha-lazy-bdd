@@ -64,6 +64,11 @@ module.exports = Mocha.interfaces['lazy-bdd'] = function(suite){
           delete this._super;
           insideTest = false;
           return cache[key] = res;
+        },
+        set: function(value) {
+          throw new Error(
+            "Don't override lazy loaded variables. Please use context or describe methods instead."
+          );
         }
       });
     };
