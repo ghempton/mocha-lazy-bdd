@@ -38,6 +38,12 @@ describe('mocha-lazy-bdd', function() {
       expect(this.anotherValue).to.eq('i am lazy(er)');
     });
     
+    it('should throw an error when setting it directly', function() {
+      expect(function() {
+        this._super.value = 'foo';
+      }).to.throw(Error);
+    });
+    
     context('inside a nested context', function() {
       
       it('evaluates lazily', function() {
