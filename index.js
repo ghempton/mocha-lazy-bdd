@@ -66,7 +66,8 @@ module.exports = Mocha.interfaces['lazy-bdd'] = function(suite){
         },
         set: function(value) {
           throw new Error(
-            "Don't override lazy loaded variables. Please use context or describe methods instead."
+            "Do not directly set lazy variables `this.someVar = 1;`, but use the lazy method " +
+            "to override the variable `lazy('someVar', function() { return 1; });`"
           );
         }
       });
