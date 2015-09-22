@@ -39,9 +39,10 @@ describe('mocha-lazy-bdd', function() {
     });
 
     it('should throw an error when setting it directly', function() {
-      expect(function() {
-        this._super.value = 'foo';
-      }).to.throw(Error);
+      setValue = function() {
+        this.value = 'foo';
+      }.bind(this);
+      expect(setValue).to.throw(Error);
     });
     
     context('inside a nested context', function() {
