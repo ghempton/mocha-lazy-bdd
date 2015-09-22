@@ -56,6 +56,7 @@ module.exports = Mocha.interfaces['lazy-bdd'] = function(suite){
             return this.currentTest.ctx[name];
           }
           if(key in cache) {
+            insideTest = false;
             return cache[key];
           }
           this._super = Object.getPrototypeOf(prototype);
