@@ -45,13 +45,6 @@ describe('mocha-lazy-bdd', function() {
       expect(setValue).to.throw(Error);
     });
     
-    it('should throw an error when setting it directly', function() {
-      setValue = function() {
-        this.value = 'foo';
-      }.bind(this);
-      expect(setValue).to.throw(Error);
-    });
-    
     context('inside a nested context', function() {
 
       it('evaluates lazily', function() {
