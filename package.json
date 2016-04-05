@@ -1,6 +1,6 @@
 {
   "name": "mocha-lazy-bdd",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Lazy bdd interface for mocha that provides RSpec-style let/subject macros for ES5+ projects.",
   "main": "index.js",
   "repository": {
@@ -25,11 +25,11 @@
   },
   "license": "ISC",
   "peerDependencies": {
-    "mocha": "^2.1.0"
+    "mocha": "^2.4.0"
   },
   "devDependencies": {
     "chai": "^1.10.0",
-    "mocha": "^2.1.0",
+    "mocha": "^2.4.0",
     "webpack": "^1.4.15"
   },
   "dependencies": {

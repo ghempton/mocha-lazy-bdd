@@ -52,7 +52,6 @@ var MochaLazyBdd =
 	var Mocha = __webpack_require__(1),
 	    Suite = Mocha.Suite,
 	    Test = Mocha.Test,
-	    utils = Mocha.utils,
 	    escapeRe = __webpack_require__(2);
 
 	/**
@@ -70,7 +69,7 @@ var MochaLazyBdd =
 	 *        });
 	 *      });
 	 *
-	 */ 
+	 */
 
 	module.exports = Mocha.interfaces['lazy-bdd'] = function(suite){
 	  var suites = [suite];
@@ -78,17 +77,24 @@ var MochaLazyBdd =
 	  var insideTest;
 
 	  suite.on('pre-require', function(context, file, mocha){
+	    var common = __webpack_require__(3)(suites, context);
 
-	    // clear lazy cache 
+	    context.before = common.before;
+	    context.after = common.after;
+	    context.beforeEach = common.beforeEach;
+	    context.afterEach = common.afterEach;
+	    context.run = mocha.options.delay && common.runWithSuite(suite);
+
+	    // clear lazy cache
 	    suite.beforeEach(function() {
 	      cache = {};
 	      insideTest = false;
 	    });
-	    
+
 	    /**
 	     * Define a lazy property.
 	     */
-	    
+
 	    context.lazy = function(name, fn) {
 	      var key = name,
 	          prototype = suites[0].ctx;
@@ -120,11 +126,11 @@ var MochaLazyBdd =
 	        }
 	      });
 	    };
-	    
+
 	    /**
 	     * Alias for `lazy` and provides 'subject' name as default.
 	     */
-	    
+
 	    context.subject = function(name, fn) {
 	      if(arguments.length === 1) {
 	        fn = name;
@@ -133,37 +139,6 @@ var MochaLazyBdd =
 	      context.lazy.call(this, name, fn);
 	    };
 
-	    /**
-	     * Execute before running tests.
-	     */
-
-	    context.before = function(name, fn){
-	      suites[0].beforeAll(name, fn);
-	    };
-
-	    /**
-	     * Execute after running tests.
-	     */
-
-	    context.after = function(name, fn){
-	      suites[0].afterAll(name, fn);
-	    };
-
-	    /**
-	     * Execute before each test case.
-	     */
-
-	    context.beforeEach = function(name, fn){
-	      suites[0].beforeEach(name, fn);
-	    };
-
-	    /**
-	     * Execute after each test case.
-	     */
-
-	    context.afterEach = function(name, fn){
-	      suites[0].afterEach(name, fn);
-	    };
 
 	    /**
 	     * Describe a "suite" with the given `title`
@@ -171,7 +146,7 @@ var MochaLazyBdd =
 	     * and/or tests.
 	     */
 
-	    context.describe = context.context = function(title, fn){
+	    context.describe = context.context = function(title, fn) {
 	      var suite = Suite.create(suites[0], title);
 	      suite.file = file;
 	      suites.unshift(suite);
@@ -184,9 +159,7 @@ var MochaLazyBdd =
 	     * Pending describe.
 	     */
 
-	    context.xdescribe =
-	    context.xcontext =
-	    context.describe.skip = function(title, fn){
+	    context.xdescribe = context.xcontext = context.describe.skip = function(title, fn) {
 	      var suite = Suite.create(suites[0], title);
 	      suite.pending = true;
 	      suites.unshift(suite);
@@ -198,7 +171,7 @@ var MochaLazyBdd =
 	     * Exclusive suite.
 	     */
 
-	    context.describe.only = function(title, fn){
+	    context.describe.only = function(title, fn) {
 	      var suite = context.describe(title, fn);
 	      mocha.grep(suite.fullTitle());
 	      return suite;
@@ -210,9 +183,11 @@ var MochaLazyBdd =
 	     * acting as a thunk.
 	     */
 
-	    context.it = context.specify = function(title, fn){
+	    var it = context.it = context.specify = function(title, fn) {
 	      var suite = suites[0];
-	      if (suite.pending) fn = null;
+	      if (suite.pending) {
+	        fn = null;
+	      }
 	      var test = new Test(title, fn);
 	      test.file = file;
 	      suite.addTest(test);
@@ -223,8 +198,8 @@ var MochaLazyBdd =
 	     * Exclusive test-case.
 	     */
 
-	    context.it.only = function(title, fn){
-	      var test = context.it(title, fn);
+	    context.it.only = function(title, fn) {
+	      var test = it(title, fn);
 	      var reString = '^' + escapeRe(test.fullTitle()) + '$';
 	      mocha.grep(new RegExp(reString));
 	      return test;
@@ -234,10 +209,15 @@ var MochaLazyBdd =
 	     * Pending test case.
 	     */
 
-	    context.xit =
-	    context.xspecify =
-	    context.it.skip = function(title){
+	    context.xit = context.xspecify = context.it.skip = function(title) {
 	      context.it(title);
+	    };
+
+	    /**
+	     * Number of attempts to retry.
+	     */
+	    context.it.retries = function(n) {
+	      context.retries(n);
 	    };
 	  });
 	};
@@ -263,6 +243,97 @@ var MochaLazyBdd =
 		}
 
 		return str.replace(matchOperatorsRe,  '\\$&');
+	};
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	/**
+	 * Functions common to more than one interface.
+	 *
+	 * @param {Suite[]} suites
+	 * @param {Context} context
+	 * @return {Object} An object containing common functions.
+	 */
+	module.exports = function(suites, context) {
+	  return {
+	    /**
+	     * This is only present if flag --delay is passed into Mocha. It triggers
+	     * root suite execution.
+	     *
+	     * @param {Suite} suite The root wuite.
+	     * @return {Function} A function which runs the root suite
+	     */
+	    runWithSuite: function runWithSuite(suite) {
+	      return function run() {
+	        suite.run();
+	      };
+	    },
+
+	    /**
+	     * Execute before running tests.
+	     *
+	     * @param {string} name
+	     * @param {Function} fn
+	     */
+	    before: function(name, fn) {
+	      suites[0].beforeAll(name, fn);
+	    },
+
+	    /**
+	     * Execute after running tests.
+	     *
+	     * @param {string} name
+	     * @param {Function} fn
+	     */
+	    after: function(name, fn) {
+	      suites[0].afterAll(name, fn);
+	    },
+
+	    /**
+	     * Execute before each test case.
+	     *
+	     * @param {string} name
+	     * @param {Function} fn
+	     */
+	    beforeEach: function(name, fn) {
+	      suites[0].beforeEach(name, fn);
+	    },
+
+	    /**
+	     * Execute after each test case.
+	     *
+	     * @param {string} name
+	     * @param {Function} fn
+	     */
+	    afterEach: function(name, fn) {
+	      suites[0].afterEach(name, fn);
+	    },
+
+	    test: {
+	      /**
+	       * Pending test case.
+	       *
+	       * @param {string} title
+	       */
+	      skip: function(title) {
+	        context.test(title);
+	      },
+
+	      /**
+	       * Number of retry attempts
+	       *
+	       * @param {string} n
+	       */
+	      retries: function(n) {
+	        context.retries(n);
+	      }
+	    }
+	  };
 	};
 
 
