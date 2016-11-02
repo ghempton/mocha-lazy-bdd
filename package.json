@@ -25,11 +25,11 @@
   },
   "license": "ISC",
   "peerDependencies": {
-    "mocha": "^2.4.0"
+    "mocha": ">=2.4.0 <3.1.0"
   },
   "devDependencies": {
     "chai": "^1.10.0",
-    "mocha": "^2.4.0",
+    "mocha": ">=2.4.0 <3.1.0",
     "webpack": "^1.4.15"
   },
   "dependencies": {
