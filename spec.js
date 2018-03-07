@@ -44,6 +44,19 @@ describe('mocha-lazy-bdd', function() {
       }.bind(this);
       expect(setValue).to.throw(Error);
     });
+
+    context('without caching', function() {
+      lazy('value', function() {
+        hitCount++;
+        return 'i am not cached';
+      }, { useCache: false });
+
+      it('does not cache the result', function() {
+        expect(this.value).to.eq('i am not cached');
+        expect(this.value).to.eq('i am not cached');
+        expect(hitCount).to.eq(2);
+      });
+    })
     
     context('inside a nested context', function() {
 
@@ -132,8 +145,13 @@ describe('mocha-lazy-bdd', function() {
   });
 
   describe('subject', function() {
+    var hitCount;
+    beforeEach(function() {
+      hitCount = 0;
+    });
 
     subject(function() {
+      hitCount++
       return 'laziness';
     });
 
@@ -149,6 +167,24 @@ describe('mocha-lazy-bdd', function() {
       expect(this.namedSubject).to.eq('haz name');
     });
 
+    it('caches the result', function() {
+      expect(this.subject).to.eq('laziness');
+      expect(this.subject).to.eq('laziness');
+      expect(hitCount).to.eq(1);
+    });
+
+    context('without caching', function() {
+      subject(function() {
+        hitCount++;
+        return 'uncached laziness';
+      }, { useCache: false });
+
+      it('does not cache the result', function() {
+        expect(this.subject).to.eq('uncached laziness');
+        expect(this.subject).to.eq('uncached laziness');
+        expect(hitCount).to.eq(2);
+      });
+    })
   });
 
   describe('beforeEach', function() {
