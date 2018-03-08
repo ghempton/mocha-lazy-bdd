@@ -48,7 +48,7 @@ module.exports = Mocha.interfaces['lazy-bdd'] = function(suite){
      * Define a lazy property.
      */
 
-    context.lazy = function(name, fn) {
+    context.lazy = function(name, fn, { useCache = true } = {}) {
       var key = name,
           prototype = suites[0].ctx;
       Object.defineProperty(prototype, name, {
@@ -61,7 +61,7 @@ module.exports = Mocha.interfaces['lazy-bdd'] = function(suite){
             insideTest = true;
             return this.currentTest.ctx[name];
           }
-          if(key in cache) {
+          if(useCache && key in cache) {
             insideTest = false;
             return cache[key];
           }
@@ -84,12 +84,13 @@ module.exports = Mocha.interfaces['lazy-bdd'] = function(suite){
      * Alias for `lazy` and provides 'subject' name as default.
      */
 
-    context.subject = function(name, fn) {
-      if(arguments.length === 1) {
+    context.subject = function(name, fn, opts) {
+      if(typeof name === 'function') {
+        opts = fn;
         fn = name;
         name = 'subject';
       }
-      context.lazy.call(this, name, fn);
+      context.lazy.call(this, name, fn, opts);
     };
 
 
